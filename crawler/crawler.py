@@ -11,9 +11,20 @@ num_threads = 0
 que = deque(['https://en.wikipedia.org/wiki/Duck'])
 crawled = set()
 
+graph = set()
+
 def spawn_new_worker():
 	t = Thread(target=crawl, args=())
-	t.start();
+	t.start()
+
+
+def valid_page(link):
+	if 'https://en.wikipedia.org/wiki/' not in link:
+		return False
+	if 'https://en.wikipedia.org/wiki/Wikipedia:' in link:
+		return False
+
+	return True;
 
 
 
@@ -37,10 +48,12 @@ def crawl():
 
 		links = html.fromstring(page_content).xpath('//a/@href')
 		print(url + "   " + str(len(crawled)))
+
 		for link in links:
 			link = urljoin(url,link)
-			if 'https://en.wikipedia.org/wiki/' in link and 'https://en.wikipedia.org/wiki/Wikipedia:' not in link :
+			if valid_page(link):
 				que.append(link)
+
 		if num_threads <= MAX_THREADS and len(que) > 1:
 			spawn_new_worker()
 
